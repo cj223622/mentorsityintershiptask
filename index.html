@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Item Search</title>
+    <style>
+        #search-container {
+            margin-top: 20px;
+        }
+
+        #item-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Item Search</h1>
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Search items...">
+    </div>
+    <ul id="item-list"></ul>
+
+    <script>
+        const itemList = document.getElementById('item-list');
+        const searchInput = document.getElementById('search-input');
+        let searchTimeout;
+
+        // Function to fetch items from the API
+        function fetchItems() {
+            fetch('https://jsonplaceholder.typicode.com/photos')
+                .then(response => response.json())
+                .then(data => {
+                    items = data;
+                    displayItems(items);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // Function to display items in the UI
+        function displayItems(items) {
+            itemList.innerHTML = ''; // Clear the previous items
+            items.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.className = 'item';
+                listItem.innerHTML = `<strong>${item.title}</strong> - <a href="${item.url}" target="_blank">View Image</a>`;
+                itemList.appendChild(listItem);
+            });
+        }
+
+        // Function to filter items based on search input
+        function filterItems(query) {
+            const filteredItems = items.filter(item =>
+                item.title.toLowerCase().includes(query.toLowerCase())
+            );
+            displayItems(filteredItems);
+        }
+
+        let items = []; // Array to store all items
+
+        // Event listener for search input (automatic search with delay)
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+
+            // Clear any previous search timeout
+            clearTimeout(searchTimeout);
+
+            // Set a new search timeout
+            searchTimeout = setTimeout(() => {
+                filterItems(query);
+            }, 300); // 300 milliseconds delay
+        });
+
+        // Initial load of items
+        fetchItems();
+    </script>
+</body>
+</html>
